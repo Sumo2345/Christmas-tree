@@ -6,22 +6,27 @@
     <title>3D Particle Christmas Tree</title>
     <style>
         body { margin: 0; overflow: hidden; background: #111; }
+        canvas { display: block; }
+
+        /* ===== 自己改这里就行 ===== */
         #text {
             position: absolute;
             top: 20px;
             left: 50%;
             transform: translateX(-50%);
-            font-family: Arial, sans-serif;
-            font-size: 2em;
-            color: goldenrod;
-            text-shadow: 0 0 10px goldenrod;
+            font-size: 20px;                    /* 1. 字号 */
+            color: #d88181;                     /* 2. 颜色 */
+            font-family: 仿宋, serif;        /* 3. 字体 */
+            text-shadow: 0 0 10px #ff0000;
             z-index: 1;
         }
-        canvas { display: block; }
+        /* ========================= */
     </style>
 </head>
 <body>
-    <div id="text">雯宝宝 圣诞快乐！</div>
+    <div id="text">雯宝宝 圣诞快乐呀！</div>
+
+    <!-- Three.js -->
     <script type="importmap">
         {
             "imports": {
@@ -31,5 +36,4 @@
     </script>
     <script type="module" src="./main.js"></script>
 </body>
-
 </html>
