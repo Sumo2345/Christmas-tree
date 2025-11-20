@@ -24,13 +24,10 @@
     </style>
 </head>
 <body>
-<script>
-    const bgmSrc = '//t5c91amfk.hn-bkt.clouddn.com/mci.mp3';
-    const bgm = new Audio(bgmSrc);
-    bgm.loop = true;
-</script>
-
     <div id="text">雯宝宝 圣诞快乐呀！</div>
+
+    <!-- 1. 隐藏音频标签 -->
+    <audio id="http://t5c91amfk.hn-bkt.clouddn.com/1726874280.mp3"></audio>
 
     <!-- Three.js -->
     <script type="importmap">
@@ -41,7 +38,13 @@
         }
     </script>
     <script type="module" src="./main.js"></script>
+    <script type="module">
+        const music = document.getElementById('xmasMusic');
+        document.addEventListener('click',()=>music.play(),{once:true});
+        document.addEventListener('keydown',()=>music.play(),{once:true});
+    </script>
 </body>
 </html>
+
 
 
