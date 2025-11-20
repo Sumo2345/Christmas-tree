@@ -1,50 +1,111 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
     <title>3D Particle Christmas Tree</title>
     <style>
-        body { margin: 0; overflow: hidden; background: #111; }
-        canvas { display: block; }
+        html,
+        body {
+            margin: 0;
+            height: 100%;
+            background: #111;
+            overflow: hidden;
+            font-family: 仿宋, serif
+        }
 
-        /* ===== 自己改这里就行 ===== */
         #text {
             position: absolute;
             top: 20px;
             left: 50%;
             transform: translateX(-50%);
-            font-size: 20px;                    /* 1. 字号 */
-            color: #d88181;                     /* 2. 颜色 */
-            font-family: 仿宋, serif;        /* 3. 字体 */
-            text-shadow: 0 0 10px #ff0000;
-            z-index: 1;
+            font-size: 20px;
+            color: #d88181;
+            text-shadow: 0 0 10px #f00;
+            z-index: 10
         }
-        /* ========================= */
+
+        /* ===== 右上角音符开关 ===== */
+        #btn-volume {
+            position: fixed;
+            top: 14px;
+            right: 14px;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: none;
+            background: rgba(255, 255, 255, .15);
+            color: #fff;
+            font-size: 22px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background .2;
+            z-index: 100;
+        }
+
+        #btn-volume:hover {
+            background: rgba(255, 255, 255, .25);
+        }
+
+        /* 静音时加一条斜杠 */
+        #btn-volume.muted::after {
+            content: '';
+            position: absolute;
+            width: 2px;
+            height: 26px;
+            background: #fff;
+            transform: rotate(-45deg);
+        }
     </style>
 </head>
+
 <body>
     <div id="text">雯宝宝 圣诞快乐呀！</div>
 
-    <!-- 1. 隐藏音频标签 -->
-    <audio id="http://t5c91amfk.hn-bkt.clouddn.com/1726874280.mp3"></audio>
+    <!-- 1. 音频：先静音，等第一次交互再开声 -->
+    <audio id="bgm" loop muted
+        src='http://t5c91amfk.hn-bkt.clouddn.com/1726874280.mp3'></audio>
 
-    <!-- Three.js -->
-    <script type="importmap">
-        {
-            "imports": {
-                "three": "https://unpkg.com/three@0.160.0/build/three.module.js"
-            }
-        }
-    </script>
+    <!-- 2. 右上角圆钮 -->
+    <button id="btn-volume" title="静音/开声">♪</button>
+
+    <script type="importmap">{"imports":{"three":"https://unpkg.com/three@0.160.0/build/three.module.js"}}</script>
     <script type="module" src="./main.js"></script>
+
     <script type="module">
-        const music = document.getElementById('xmasMusic');
-        document.addEventListener('click',()=>music.play(),{once:true});
-        document.addEventListener('keydown',()=>music.play(),{once:true});
+        const bgm = document.getElementById('bgm');
+        const btn = document.getElementById('btn-volume');
+
+        let ready = false;
+
+        /* 第一次交互：解除浏览器自动播放限制 */
+        function firstActivate() {
+            if (ready) return;
+            bgm.muted = false;
+            bgm.volume = 0.6;
+            bgm.play().then(() => {
+                ready = true;
+            }).catch(err => {
+                console.warn('播放失败:', err);
+            });
+            document.removeEventListener('click', firstActivate, { once: true });
+            document.removeEventListener('keydown', firstActivate, { once: true });
+        }
+        document.addEventListener('click', firstActivate, { once: true });
+        document.addEventListener('keydown', firstActivate, { once: true });
+
+        /* 点击按钮切换静音 */
+        btn.onclick = () => {
+            if (!ready) {        // 还没激活时先强制激活
+                firstActivate();
+                return;
+            }
+            bgm.muted = !bgm.muted;
+            btn.classList.toggle('muted', bgm.muted);
+        };
     </script>
 </body>
+
 </html>
-
-
-
