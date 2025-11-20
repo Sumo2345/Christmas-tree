@@ -1,112 +1,123 @@
-<!DOCTYPE html>
-<html lang="zh-CN">
+<!DOCTYPE html> <!-- 声明文档类型：HTML5 -->
+<html lang="zh-CN"> <!-- 根节点，语言设为简体中文 -->
 
-<head>
-    <meta charset="UTF-8" />
-    <title>3D Particle Christmas Tree</title>
-    <style>
-        html,
-        body {
-            margin: 0;
-            height: 100%;
-            background: #111;
-            overflow: hidden;
-            font-family: 仿宋, serif
+<head> <!-- 文档头部，放元信息、标题、样式等 -->
+    <meta charset="UTF-8" /> <!-- 字符编码：UTF-8，支持中文 -->
+    <title>3D Particle Christmas Tree</title> <!-- 浏览器标签页标题 -->
+
+    <style> /* —————— 内联 CSS 开始 —————— */
+        /* 对 html 和 body 同时设置，清除默认边距并占满整个窗口 */
+        html, body {
+            margin: 0;              /* 去掉浏览器默认 8px 边距 */
+            height: 100%;           /* 让 body 高度=视口高度，方便 canvas 撑满 */
+            background: #111;       /* 深灰黑背景，更像夜晚 */
+            overflow: hidden;       /* 隐藏滚动条，保证全屏效果 */
+            font-family: 仿宋, serif; /* 全局字体：仿宋，备用衬线字体 */
         }
 
+        /* 祝福文字块：水平居中 + 红色发光 */
         #text {
-            position: absolute;
-            top: 30px;
-            left: 50%;
-            transform: translateX(-50%);
-            font-size: 30px;
-            color: #d88181;
-            text-shadow: 0 0 10px #f00;
-            z-index: 10
+            position: absolute;     /* 脱离文档流，可随意定位 */
+            top: 48px;              /* 距离顶部 20px */
+            left: 53%;              /* 左边跑到屏幕一半 */
+            transform: translateX(-50%); /* 再向左回退自身宽度一半，实现真正居中 */
+            font-size: 39px;        /* 字号 */
+            color: #d88181;         /* 淡红色文字 */
+            text-shadow: 0 0 10px #f00; /* 红色发光阴影 */
+            z-index: 10;            /* 保证在 canvas 之上 */
         }
 
         /* ===== 右上角音符开关 ===== */
         #btn-volume {
-            position: fixed;
-            top: 14px;
-            right: 25px;
-            width: 40px;
+            position: fixed;        /* 相对于视口固定，滚动也不动 */
+            top: 14px;              /* 距离顶部 14px */
+            right: 14px;            /* 距离右边 14px */
+            width: 70px;            /* 圆钮直径 */
             height: 40px;
-            border-radius: 50%;
-            border: none;
-            background: rgba(255, 255, 255, .15);
-            color: #fff;
-            font-size: 35px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: background .2;
-            z-index: 100;
+            border-radius: 50%;     /* 正方形变圆 */
+            border: none;           /* 去掉按钮默认边框 */
+            background: rgba(255, 255, 255, .15); /* 半透明白底 */
+            color: #fff;            /* 音符符号白色 */
+            font-size: 22px;        /* 音符大小 */
+            cursor: pointer;        /* 鼠标变手型 */
+            display: flex;          /* 弹性布局，方便居中 */
+            align-items: center;    /* 垂直居中 */
+            justify-content: center;/* 水平居中 */
+            transition: background .2; /* 悬停变色过渡动画 */
+            z-index: 100;           /* 保证在最上层 */
         }
-
-        #btn-volume:hover {
+        #btn-volume:hover {         /* 鼠标悬停时背景更亮 */
             background: rgba(255, 255, 255, .25);
         }
-
-        /* 静音时加一条斜杠 */
+        /* 静音时在音符上画一条斜杠（利用伪元素） */
         #btn-volume.muted::after {
-            content: '';
-            position: absolute;
-            width: 2px;
-            height: 26px;
-            background: #fff;
-            transform: rotate(-45deg);
+            content: '';            /* 伪元素必须写 content */
+            position: absolute;     /* 绝对定位覆盖音符 */
+            width: 2px;             /* 斜杠粗细 */
+            height: 26px;           /* 斜杠长度 */
+            background: #fff;       /* 斜杠颜色 */
+            transform: rotate(-45deg); /* 旋转成斜线 */
         }
-    </style>
+    </style> <!-- —————— 内联 CSS 结束 —————— -->
 </head>
 
-<body>
+<body> <!-- 文档主体，所有可见内容放这里 -->
+
+    <!-- 祝福语文本块 -->
     <div id="text">雯宝宝 圣诞快乐呀！</div>
 
-    <!-- 1. 音频：先静音，等第一次交互再开声 -->
+    <!-- 1. 音频元素：loop=循环  muted=默认静音  src=外链地址 -->
     <audio id="bgm" loop muted
-        src='http://t5c91amfk.hn-bkt.clouddn.com/1726874280.mp3'></audio>
+        src='http://t5c91amfk.hn-bkt.clouddn.com/1726874280.mp3 '></audio>
 
-    <!-- 2. 右上角圆钮 -->
+    <!-- 2. 右上角圆钮，♪ 符号当内容，title 悬停提示 -->
     <button id="btn-volume" title="静音/开声">♪</button>
 
-    <script type="importmap">{"imports":{"three":"https://unpkg.com/three@0.160.0/build/three.module.js"}}</script>
+    <!-- 用 importmap 告诉浏览器 "three" 这个裸模块对应的真实 URL -->
+    <script type="importmap">
+        {"imports":{"three":"https://unpkg.com/three@0.160.0/build/three.module.js "}}
+    </script>
+
+    <!-- 引入你自己写的 Three.js 主逻辑（粒子树场景） -->
     <script type="module" src="./main.js"></script>
 
+    <!-- —————— 控制音乐播放/静音的脚本 —————— -->
     <script type="module">
+        /* 拿到音频元素和按钮元素 */
         const bgm = document.getElementById('bgm');
         const btn = document.getElementById('btn-volume');
 
-        let ready = false;
+        let ready = false;   // 标记：是否已激活播放（浏览器要求第一次必须交互）
 
-        /* 第一次交互：解除浏览器自动播放限制 */
+        /* 首次交互回调：解除浏览器自动播放限制 */
         function firstActivate() {
-            if (ready) return;
-            bgm.muted = false;
-            bgm.volume = 0.6;
-            bgm.play().then(() => {
-                ready = true;
-            }).catch(err => {
-                console.warn('播放失败:', err);
-            });
+            if (ready) return;       // 如果已经激活过，直接返回
+            bgm.muted = false;       // 取消静音
+            bgm.volume = 0.6;        // 设置音量 60%
+            bgm.play()               // 真正开始播放
+                .then(() => { ready = true; }) // 成功后将标记设为 true
+                .catch(err => {                // 失败时打印原因
+                    console.warn('播放失败:', err);
+                });
+            // 用完即弃：只监听一次点击/按键
             document.removeEventListener('click', firstActivate, { once: true });
             document.removeEventListener('keydown', firstActivate, { once: true });
         }
+
+        /* 页面第一次点击或按键时触发激活函数 */
         document.addEventListener('click', firstActivate, { once: true });
         document.addEventListener('keydown', firstActivate, { once: true });
 
-        /* 点击按钮切换静音 */
+        /* 点击右上角按钮：切换静音/开声 */
         btn.onclick = () => {
-            if (!ready) {        // 还没激活时先强制激活
+            if (!ready) {        // 如果还没激活，先激活
                 firstActivate();
                 return;
             }
-            bgm.muted = !bgm.muted;
-            btn.classList.toggle('muted', bgm.muted);
+            bgm.muted = !bgm.muted;              // 取反静音状态
+            btn.classList.toggle('muted', bgm.muted); // 同步更新斜杠样式
         };
     </script>
-</body>
+</body> <!-- 主体结束 -->
 
-</html>
-
+</html> <!-- 文档结束 -->
